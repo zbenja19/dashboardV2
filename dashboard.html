@@ -1,0 +1,635 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>GameStore — Dashboard</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@2.44.0/tabler-icons.min.css">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#0f0f0f;color:#f0f0f0;min-height:100vh}
+a{color:inherit;text-decoration:none}
+.dash{max-width:1100px;margin:0 auto;padding:2rem 1.5rem}
+.topbar{display:flex;align-items:center;justify-content:space-between;margin-bottom:2rem;flex-wrap:wrap;gap:12px}
+.brand{display:flex;align-items:center;gap:12px}
+.brand-icon{width:40px;height:40px;background:#1D9E75;border-radius:10px;display:flex;align-items:center;justify-content:center;color:#fff;font-size:22px}
+.brand-title{font-size:18px;font-weight:600;color:#f0f0f0}
+.brand-sub{font-size:12px;color:#888}
+.status-pill{background:rgba(29,158,117,0.15);color:#1D9E75;font-size:12px;padding:5px 13px;border-radius:20px;border:1px solid rgba(29,158,117,0.3);display:flex;align-items:center;gap:5px}
+.tabs{display:flex;gap:0;border-bottom:1px solid #222;margin-bottom:1.75rem;overflow-x:auto}
+.tab{padding:10px 18px;font-size:13px;color:#888;cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-1px;white-space:nowrap;transition:color 0.15s,border-color 0.15s}
+.tab.active{color:#1D9E75;border-bottom-color:#1D9E75;font-weight:500}
+.tab:hover:not(.active){color:#ddd}
+.section{display:none}
+.section.active{display:block}
+.kpi-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;margin-bottom:1.5rem}
+.kpi{background:#1a1a1a;border-radius:10px;padding:16px 18px;border:1px solid #222}
+.kpi-label{font-size:11px;color:#666;margin-bottom:8px;text-transform:uppercase;letter-spacing:.05em}
+.kpi-val{font-size:26px;font-weight:600;color:#f0f0f0;line-height:1}
+.kpi-delta{font-size:11px;color:#1D9E75;margin-top:5px;display:flex;align-items:center;gap:3px}
+.kpi-delta.down{color:#e05c5c}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:1.5rem}
+@media(max-width:640px){.grid2{grid-template-columns:1fr}}
+.card{background:#1a1a1a;border:1px solid #222;border-radius:12px;padding:1.1rem 1.3rem}
+.card-title{font-size:12px;font-weight:500;color:#888;margin-bottom:1rem;display:flex;align-items:center;gap:6px;text-transform:uppercase;letter-spacing:.04em}
+.chart-wrap{position:relative;width:100%}
+.game-list{display:flex;flex-direction:column;gap:8px}
+.game-row{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:8px;background:#111;border:1px solid #1e1e1e}
+.game-icon{width:34px;height:34px;border-radius:7px;display:flex;align-items:center;justify-content:center;font-size:17px;flex-shrink:0}
+.game-info{flex:1;min-width:0}
+.game-name{font-size:13px;font-weight:500;color:#f0f0f0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.game-meta{font-size:11px;color:#555;margin-top:2px}
+.game-price{font-size:13px;font-weight:600;color:#1D9E75}
+.badge{font-size:10px;padding:2px 7px;border-radius:12px;font-weight:500;margin-left:4px}
+.badge-accion{background:rgba(29,158,117,0.15);color:#1D9E75}
+.badge-rpg{background:rgba(83,74,183,0.2);color:#a89cf5}
+.badge-deporte{background:rgba(42,120,214,0.2);color:#78b3f5}
+.badge-estrategia{background:rgba(237,161,0,0.15);color:#eda100}
+.badge-aventura{background:rgba(227,73,72,0.15);color:#e34948}
+.badge-sim{background:rgba(232,123,164,0.15);color:#e87ba4}
+.stock-bar-wrap{background:#222;border-radius:4px;height:6px;flex:1}
+.stock-bar{height:6px;border-radius:4px;background:#1D9E75}
+.stock-bar.low{background:#e34948}
+.stock-bar.mid{background:#eda100}
+.plat-row{display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid #1e1e1e}
+.plat-row:last-child{border-bottom:none}
+.plat-name{font-size:13px;color:#ddd;flex:1}
+.plat-count{font-size:13px;font-weight:600;color:#f0f0f0}
+.prov-table{width:100%;border-collapse:collapse;font-size:13px}
+.prov-table th{color:#555;font-weight:500;font-size:11px;text-transform:uppercase;letter-spacing:.04em;padding:8px 0;text-align:left;border-bottom:1px solid #222}
+.prov-table td{padding:10px 0;color:#ddd;border-bottom:1px solid #1a1a1a}
+.prov-table tr:last-child td{border-bottom:none}
+.prov-email{color:#555;font-size:11px;margin-top:2px}
+.cat-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(145px,1fr));gap:10px}
+.cat-card{background:#111;border:1px solid #1e1e1e;border-radius:10px;padding:16px;text-align:center}
+.cat-num{font-size:30px;font-weight:700;color:#1D9E75}
+.cat-name{font-size:12px;color:#888;margin-top:6px}
+.cat-desc{font-size:11px;color:#444;margin-top:4px;line-height:1.4}
+.offer-row{display:flex;align-items:center;gap:12px;padding:12px;border-radius:8px;background:#111;border:1px solid #1e1e1e;margin-bottom:10px}
+.disc-badge{background:rgba(227,73,72,0.15);color:#e34948;font-size:12px;font-weight:600;padding:4px 10px;border-radius:6px;white-space:nowrap}
+.date-range{font-size:11px;color:#555;margin-top:2px}
+.full-card{background:#1a1a1a;border:1px solid #222;border-radius:12px;padding:1.1rem 1.3rem;margin-bottom:1.5rem}
+.section-label{font-size:11px;color:#555;text-transform:uppercase;letter-spacing:.06em;font-weight:500;margin-bottom:1rem;display:flex;align-items:center;gap:6px}
+footer{text-align:center;font-size:11px;color:#333;margin-top:3rem;padding-top:1.5rem;border-top:1px solid #1a1a1a}
+</style>
+</head>
+<body>
+<div class="dash">
+  <div class="topbar">
+    <div class="brand">
+      <div class="brand-icon"><i class="ti ti-device-gamepad-2"></i></div>
+      <div>
+        <div class="brand-title">GameStore</div>
+        <div class="brand-sub">Microservicios · Spring Boot · PostgreSQL</div>
+      </div>
+    </div>
+    <div class="status-pill"><i class="ti ti-circle-check"></i> Catálogo activo</div>
+  </div>
+
+  <div class="tabs" role="tablist">
+    <div class="tab active" onclick="switchTab('catalogo')">📦 Catálogo</div>
+    <div class="tab" onclick="switchTab('plataformas')">🎮 Plataformas</div>
+    <div class="tab" onclick="switchTab('proveedores')">🏢 Proveedores</div>
+    <div class="tab" onclick="switchTab('categorias')">🏷️ Categorías</div>
+    <div class="tab" onclick="switchTab('ofertas')">🔥 Ofertas</div>
+  </div>
+
+  <!-- CATÁLOGO -->
+  <div id="catalogo" class="section active">
+    <div class="kpi-row">
+      <div class="kpi">
+        <div class="kpi-label">Juegos en catálogo</div>
+        <div class="kpi-val">24</div>
+        <div class="kpi-delta"><i class="ti ti-trending-up"></i> +3 este mes</div>
+      </div>
+      <div class="kpi">
+        <div class="kpi-label">Precio promedio</div>
+        <div class="kpi-val">$42.990</div>
+        <div class="kpi-delta">CLP</div>
+      </div>
+      <div class="kpi">
+        <div class="kpi-label">Stock total</div>
+        <div class="kpi-val">1.284</div>
+        <div class="kpi-delta down"><i class="ti ti-alert-triangle"></i> 2 sin stock</div>
+      </div>
+      <div class="kpi">
+        <div class="kpi-label">Géneros</div>
+        <div class="kpi-val">6</div>
+        <div class="kpi-delta">Acción · RPG · Deporte ···</div>
+      </div>
+    </div>
+
+    <div class="full-card">
+      <div class="section-label"><i class="ti ti-list"></i> Juegos destacados</div>
+      <div class="game-list">
+        <div class="game-row">
+          <div class="game-icon" style="background:rgba(29,158,117,0.15)">⚔️</div>
+          <div class="game-info">
+            <div class="game-name">Elden Ring <span class="badge badge-rpg">RPG</span></div>
+            <div class="game-meta">PlayStation 5 · FromSoftware</div>
+          </div>
+          <div style="text-align:right">
+            <div class="game-price">$59.990</div>
+            <div style="font-size:11px;color:#555">Stock: 48</div>
+          </div>
+        </div>
+        <div class="game-row">
+          <div class="game-icon" style="background:rgba(42,120,214,0.15)">🏎️</div>
+          <div class="game-info">
+            <div class="game-name">Gran Turismo 7 <span class="badge badge-deporte">Deporte</span></div>
+            <div class="game-meta">PlayStation 5 · Polyphony Digital</div>
+          </div>
+          <div style="text-align:right">
+            <div class="game-price">$49.990</div>
+            <div style="font-size:11px;color:#555">Stock: 112</div>
+          </div>
+        </div>
+        <div class="game-row">
+          <div class="game-icon" style="background:rgba(227,73,72,0.12)">🔫</div>
+          <div class="game-info">
+            <div class="game-name">Call of Duty: MW3 <span class="badge badge-accion">Acción</span></div>
+            <div class="game-meta">Xbox Series X · Activision</div>
+          </div>
+          <div style="text-align:right">
+            <div class="game-price">$54.990</div>
+            <div style="font-size:11px;color:#555">Stock: 73</div>
+          </div>
+        </div>
+        <div class="game-row">
+          <div class="game-icon" style="background:rgba(232,123,164,0.12)">🗡️</div>
+          <div class="game-info">
+            <div class="game-name">Zelda: Tears of the Kingdom <span class="badge badge-aventura">Aventura</span></div>
+            <div class="game-meta">Nintendo Switch · Nintendo</div>
+          </div>
+          <div style="text-align:right">
+            <div class="game-price">$64.990</div>
+            <div style="font-size:11px;color:#e34948">Sin stock ⚠️</div>
+          </div>
+        </div>
+        <div class="game-row">
+          <div class="game-icon" style="background:rgba(237,161,0,0.12)">♟️</div>
+          <div class="game-info">
+            <div class="game-name">Civilization VII <span class="badge badge-estrategia">Estrategia</span></div>
+            <div class="game-meta">PC · 2K Games</div>
+          </div>
+          <div style="text-align:right">
+            <div class="game-price">$39.990</div>
+            <div style="font-size:11px;color:#555">Stock: 25</div>
+          </div>
+        </div>
+        <div class="game-row">
+          <div class="game-icon" style="background:rgba(83,74,183,0.15)">🌾</div>
+          <div class="game-info">
+            <div class="game-name">Stardew Valley <span class="badge badge-sim">Simulación</span></div>
+            <div class="game-meta">PC / Switch · ConcernedApe</div>
+          </div>
+          <div style="text-align:right">
+            <div class="game-price">$14.990</div>
+            <div style="font-size:11px;color:#555">Stock: 210</div>
+          </div>
+        </div>
+        <div class="game-row">
+          <div class="game-icon" style="background:rgba(29,158,117,0.15)">🧟</div>
+          <div class="game-info">
+            <div class="game-name">Resident Evil 4 Remake <span class="badge badge-accion">Acción</span></div>
+            <div class="game-meta">PlayStation 5 · Capcom</div>
+          </div>
+          <div style="text-align:right">
+            <div class="game-price">$44.990</div>
+            <div style="font-size:11px;color:#555">Stock: 64</div>
+          </div>
+        </div>
+        <div class="game-row">
+          <div class="game-icon" style="background:rgba(237,161,0,0.12)">⚽</div>
+          <div class="game-info">
+            <div class="game-name">EA Sports FC 25 <span class="badge badge-deporte">Deporte</span></div>
+            <div class="game-meta">Multi-plataforma · EA Sports</div>
+          </div>
+          <div style="text-align:right">
+            <div class="game-price">$49.990</div>
+            <div style="font-size:11px;color:#555">Stock: 155</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="full-card">
+      <div class="section-label"><i class="ti ti-chart-bar"></i> Distribución por género</div>
+      <div class="chart-wrap" style="height:200px">
+        <canvas id="generoChart"></canvas>
+      </div>
+    </div>
+  </div>
+
+  <!-- PLATAFORMAS -->
+  <div id="plataformas" class="section">
+    <div class="kpi-row">
+      <div class="kpi">
+        <div class="kpi-label">Plataformas</div>
+        <div class="kpi-val">5</div>
+        <div class="kpi-delta">Consola y PC</div>
+      </div>
+      <div class="kpi">
+        <div class="kpi-label">Mayor catálogo</div>
+        <div class="kpi-val">PS5</div>
+        <div class="kpi-delta">9 títulos</div>
+      </div>
+      <div class="kpi">
+        <div class="kpi-label">Stock crítico</div>
+        <div class="kpi-val">PS4</div>
+        <div class="kpi-delta down">10 unidades</div>
+      </div>
+    </div>
+
+    <div class="grid2">
+      <div class="card">
+        <div class="card-title"><i class="ti ti-device-gamepad"></i> Juegos por plataforma</div>
+        <div>
+          <div class="plat-row">
+            <div style="width:30px;height:30px;background:rgba(42,120,214,0.2);border-radius:7px;display:flex;align-items:center;justify-content:center;font-size:15px">🎮</div>
+            <div class="plat-name">PlayStation 5</div>
+            <div class="plat-count">9</div>
+          </div>
+          <div class="plat-row">
+            <div style="width:30px;height:30px;background:rgba(29,158,117,0.2);border-radius:7px;display:flex;align-items:center;justify-content:center;font-size:15px">🟢</div>
+            <div class="plat-name">Xbox Series X</div>
+            <div class="plat-count">6</div>
+          </div>
+          <div class="plat-row">
+            <div style="width:30px;height:30px;background:rgba(237,161,0,0.15);border-radius:7px;display:flex;align-items:center;justify-content:center;font-size:15px">💻</div>
+            <div class="plat-name">PC (Steam)</div>
+            <div class="plat-count">5</div>
+          </div>
+          <div class="plat-row">
+            <div style="width:30px;height:30px;background:rgba(227,73,72,0.15);border-radius:7px;display:flex;align-items:center;justify-content:center;font-size:15px">🔴</div>
+            <div class="plat-name">Nintendo Switch</div>
+            <div class="plat-count">3</div>
+          </div>
+          <div class="plat-row">
+            <div style="width:30px;height:30px;background:rgba(83,74,183,0.2);border-radius:7px;display:flex;align-items:center;justify-content:center;font-size:15px">📱</div>
+            <div class="plat-name">PlayStation 4</div>
+            <div class="plat-count">1</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title"><i class="ti ti-chart-donut"></i> Participación en catálogo</div>
+        <div class="chart-wrap" style="height:180px">
+          <canvas id="platChart"></canvas>
+        </div>
+        <div style="display:flex;flex-wrap:wrap;gap:10px;margin-top:12px;font-size:11px;color:#666">
+          <span style="display:flex;align-items:center;gap:4px"><span style="width:9px;height:9px;border-radius:2px;background:#2a78d6;display:inline-block"></span>PS5 38%</span>
+          <span style="display:flex;align-items:center;gap:4px"><span style="width:9px;height:9px;border-radius:2px;background:#1baf7a;display:inline-block"></span>Xbox 25%</span>
+          <span style="display:flex;align-items:center;gap:4px"><span style="width:9px;height:9px;border-radius:2px;background:#eda100;display:inline-block"></span>PC 21%</span>
+          <span style="display:flex;align-items:center;gap:4px"><span style="width:9px;height:9px;border-radius:2px;background:#4a3aa7;display:inline-block"></span>Switch 13%</span>
+          <span style="display:flex;align-items:center;gap:4px"><span style="width:9px;height:9px;border-radius:2px;background:#e34948;display:inline-block"></span>PS4 4%</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="full-card">
+      <div class="section-label"><i class="ti ti-stack-2"></i> Stock disponible por plataforma</div>
+      <div style="display:flex;flex-direction:column;gap:12px">
+        <div style="display:flex;align-items:center;gap:12px">
+          <div style="font-size:12px;color:#888;width:130px">PlayStation 5</div>
+          <div class="stock-bar-wrap"><div class="stock-bar" style="width:85%"></div></div>
+          <div style="font-size:12px;color:#555;width:55px">612 ud.</div>
+        </div>
+        <div style="display:flex;align-items:center;gap:12px">
+          <div style="font-size:12px;color:#888;width:130px">Xbox Series X</div>
+          <div class="stock-bar-wrap"><div class="stock-bar" style="width:60%"></div></div>
+          <div style="font-size:12px;color:#555;width:55px">380 ud.</div>
+        </div>
+        <div style="display:flex;align-items:center;gap:12px">
+          <div style="font-size:12px;color:#888;width:130px">PC (Steam)</div>
+          <div class="stock-bar-wrap"><div class="stock-bar" style="width:40%"></div></div>
+          <div style="font-size:12px;color:#555;width:55px">210 ud.</div>
+        </div>
+        <div style="display:flex;align-items:center;gap:12px">
+          <div style="font-size:12px;color:#888;width:130px">Nintendo Switch</div>
+          <div class="stock-bar-wrap"><div class="stock-bar mid" style="width:14%"></div></div>
+          <div style="font-size:12px;color:#555;width:55px">72 ud.</div>
+        </div>
+        <div style="display:flex;align-items:center;gap:12px">
+          <div style="font-size:12px;color:#888;width:130px">PlayStation 4</div>
+          <div class="stock-bar-wrap"><div class="stock-bar low" style="width:2%"></div></div>
+          <div style="font-size:12px;color:#555;width:55px">10 ud.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- PROVEEDORES -->
+  <div id="proveedores" class="section">
+    <div class="kpi-row">
+      <div class="kpi">
+        <div class="kpi-label">Proveedores activos</div>
+        <div class="kpi-val">6</div>
+        <div class="kpi-delta">Internacional y local</div>
+      </div>
+      <div class="kpi">
+        <div class="kpi-label">Mayor proveedor</div>
+        <div class="kpi-val">Sony</div>
+        <div class="kpi-delta">9 juegos distribuidos</div>
+      </div>
+      <div class="kpi">
+        <div class="kpi-label">Contactos</div>
+        <div class="kpi-val">100%</div>
+        <div class="kpi-delta">Email y teléfono</div>
+      </div>
+    </div>
+
+    <div class="full-card">
+      <div class="section-label"><i class="ti ti-building-store"></i> Directorio de proveedores</div>
+      <table class="prov-table">
+        <thead>
+          <tr>
+            <th>Proveedor</th>
+            <th>Email</th>
+            <th>Teléfono</th>
+            <th style="text-align:right">Juegos</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><div style="font-weight:500;color:#f0f0f0">Sony Interactive</div><div class="prov-email">PlayStation publisher</div></td>
+            <td><div class="prov-email">ventas@sony-ie.cl</div></td>
+            <td style="color:#888;font-size:12px">+56 2 2900 1000</td>
+            <td style="text-align:right"><span style="font-weight:600;color:#1D9E75;font-size:15px">9</span></td>
+          </tr>
+          <tr>
+            <td><div style="font-weight:500;color:#f0f0f0">Microsoft Gaming</div><div class="prov-email">Xbox publisher</div></td>
+            <td><div class="prov-email">gaming@microsoft.cl</div></td>
+            <td style="color:#888;font-size:12px">+56 2 2920 3000</td>
+            <td style="text-align:right"><span style="font-weight:600;color:#1D9E75;font-size:15px">6</span></td>
+          </tr>
+          <tr>
+            <td><div style="font-weight:500;color:#f0f0f0">Nintendo Chile</div><div class="prov-email">Distribuidor oficial</div></td>
+            <td><div class="prov-email">contacto@nintendo.cl</div></td>
+            <td style="color:#888;font-size:12px">+56 2 2340 8800</td>
+            <td style="text-align:right"><span style="font-weight:600;color:#1D9E75;font-size:15px">3</span></td>
+          </tr>
+          <tr>
+            <td><div style="font-weight:500;color:#f0f0f0">Valve / Steam</div><div class="prov-email">Distribución digital PC</div></td>
+            <td><div class="prov-email">partners@valve.com</div></td>
+            <td style="color:#888;font-size:12px">+1 425 889 9642</td>
+            <td style="text-align:right"><span style="font-weight:600;color:#1D9E75;font-size:15px">4</span></td>
+          </tr>
+          <tr>
+            <td><div style="font-weight:500;color:#f0f0f0">Activision Blizzard</div><div class="prov-email">Multi-platform publisher</div></td>
+            <td><div class="prov-email">la@activision.com</div></td>
+            <td style="color:#888;font-size:12px">+1 310 255 2000</td>
+            <td style="text-align:right"><span style="font-weight:600;color:#1D9E75;font-size:15px">2</span></td>
+          </tr>
+          <tr>
+            <td><div style="font-weight:500;color:#f0f0f0">Capcom</div><div class="prov-email">Publisher japonés</div></td>
+            <td><div class="prov-email">sales@capcom.co.jp</div></td>
+            <td style="color:#888;font-size:12px">+81 6 6920 3600</td>
+            <td style="text-align:right"><span style="font-weight:600;color:#1D9E75;font-size:15px">2</span></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="full-card">
+      <div class="section-label"><i class="ti ti-chart-bar"></i> Juegos por proveedor</div>
+      <div class="chart-wrap" style="height:200px">
+        <canvas id="provChart"></canvas>
+      </div>
+    </div>
+  </div>
+
+  <!-- CATEGORÍAS -->
+  <div id="categorias" class="section">
+    <div class="kpi-row">
+      <div class="kpi">
+        <div class="kpi-label">Categorías</div>
+        <div class="kpi-val">6</div>
+        <div class="kpi-delta">Bien diferenciadas</div>
+      </div>
+      <div class="kpi">
+        <div class="kpi-label">Más grande</div>
+        <div class="kpi-val">Acción</div>
+        <div class="kpi-delta">7 juegos</div>
+      </div>
+      <div class="kpi">
+        <div class="kpi-label">Precio más alto</div>
+        <div class="kpi-val">RPG</div>
+        <div class="kpi-delta">$57.000 prom.</div>
+      </div>
+      <div class="kpi">
+        <div class="kpi-label">Cobertura</div>
+        <div class="kpi-val">100%</div>
+        <div class="kpi-delta">Todos clasificados</div>
+      </div>
+    </div>
+
+    <div class="full-card">
+      <div class="section-label"><i class="ti ti-tag"></i> Categorías del catálogo</div>
+      <div class="cat-grid">
+        <div class="cat-card">
+          <div class="cat-num">7</div>
+          <div class="cat-name"><span class="badge badge-accion">Acción</span></div>
+          <div class="cat-desc">Shooter, combate, aventura de acción rápida</div>
+        </div>
+        <div class="cat-card">
+          <div class="cat-num">5</div>
+          <div class="cat-name"><span class="badge badge-rpg">RPG</span></div>
+          <div class="cat-desc">Juego de rol, progresión y mundos abiertos</div>
+        </div>
+        <div class="cat-card">
+          <div class="cat-num">4</div>
+          <div class="cat-name"><span class="badge badge-deporte">Deporte</span></div>
+          <div class="cat-desc">Fútbol, carreras, simulación deportiva</div>
+        </div>
+        <div class="cat-card">
+          <div class="cat-num">4</div>
+          <div class="cat-name"><span class="badge badge-aventura">Aventura</span></div>
+          <div class="cat-desc">Exploración, puzzles, narrativa</div>
+        </div>
+        <div class="cat-card">
+          <div class="cat-num">2</div>
+          <div class="cat-name"><span class="badge badge-estrategia">Estrategia</span></div>
+          <div class="cat-desc">Construcción, gestión, táctica por turnos</div>
+        </div>
+        <div class="cat-card">
+          <div class="cat-num">2</div>
+          <div class="cat-name"><span class="badge badge-sim">Simulación</span></div>
+          <div class="cat-desc">Vida, granja, simuladores de ciudad</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="full-card">
+      <div class="section-label"><i class="ti ti-chart-bar"></i> Precio promedio por categoría (CLP)</div>
+      <div class="chart-wrap" style="height:230px">
+        <canvas id="catChart"></canvas>
+      </div>
+    </div>
+  </div>
+
+  <!-- OFERTAS -->
+  <div id="ofertas" class="section">
+    <div class="kpi-row">
+      <div class="kpi">
+        <div class="kpi-label">Ofertas activas</div>
+        <div class="kpi-val">4</div>
+        <div class="kpi-delta"><i class="ti ti-calendar"></i> Junio 2026</div>
+      </div>
+      <div class="kpi">
+        <div class="kpi-label">Mayor descuento</div>
+        <div class="kpi-val">40%</div>
+        <div class="kpi-delta">Elden Ring</div>
+      </div>
+      <div class="kpi">
+        <div class="kpi-label">Descuento prom.</div>
+        <div class="kpi-val">26%</div>
+        <div class="kpi-delta">Sobre precio base</div>
+      </div>
+      <div class="kpi">
+        <div class="kpi-label">Cobertura</div>
+        <div class="kpi-val">17%</div>
+        <div class="kpi-delta">Del catálogo en oferta</div>
+      </div>
+    </div>
+
+    <div class="full-card">
+      <div class="section-label"><i class="ti ti-discount-2"></i> Ofertas vigentes</div>
+      <div class="offer-row">
+        <div style="width:38px;height:38px;background:rgba(29,158,117,0.15);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0">⚔️</div>
+        <div style="flex:1">
+          <div style="font-size:14px;font-weight:500;color:#f0f0f0">Elden Ring</div>
+          <div class="date-range">01 Jun → 30 Jun 2026</div>
+        </div>
+        <div style="text-align:right">
+          <div class="disc-badge">-40%</div>
+          <div style="font-size:12px;color:#555;margin-top:4px">$59.990 → <strong style="color:#1D9E75">$35.994</strong></div>
+        </div>
+      </div>
+      <div class="offer-row">
+        <div style="width:38px;height:38px;background:rgba(42,120,214,0.15);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0">🏎️</div>
+        <div style="flex:1">
+          <div style="font-size:14px;font-weight:500;color:#f0f0f0">Gran Turismo 7</div>
+          <div class="date-range">15 Jun → 15 Jul 2026</div>
+        </div>
+        <div style="text-align:right">
+          <div class="disc-badge">-25%</div>
+          <div style="font-size:12px;color:#555;margin-top:4px">$49.990 → <strong style="color:#1D9E75">$37.493</strong></div>
+        </div>
+      </div>
+      <div class="offer-row">
+        <div style="width:38px;height:38px;background:rgba(232,123,164,0.15);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0">🌾</div>
+        <div style="flex:1">
+          <div style="font-size:14px;font-weight:500;color:#f0f0f0">Stardew Valley</div>
+          <div class="date-range">01 Jun → 30 Jun 2026</div>
+        </div>
+        <div style="text-align:right">
+          <div class="disc-badge">-20%</div>
+          <div style="font-size:12px;color:#555;margin-top:4px">$14.990 → <strong style="color:#1D9E75">$11.992</strong></div>
+        </div>
+      </div>
+      <div class="offer-row">
+        <div style="width:38px;height:38px;background:rgba(237,161,0,0.12);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0">♟️</div>
+        <div style="flex:1">
+          <div style="font-size:14px;font-weight:500;color:#f0f0f0">Civilization VII</div>
+          <div class="date-range">20 Jun → 20 Jul 2026</div>
+        </div>
+        <div style="text-align:right">
+          <div class="disc-badge">-20%</div>
+          <div style="font-size:12px;color:#555;margin-top:4px">$39.990 → <strong style="color:#1D9E75">$31.992</strong></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="full-card">
+      <div class="section-label"><i class="ti ti-chart-bar"></i> Ahorro total por oferta (CLP)</div>
+      <div class="chart-wrap" style="height:200px">
+        <canvas id="ofertaChart"></canvas>
+      </div>
+    </div>
+  </div>
+
+  <footer>TiendaVideoJuegosV2 · Microservicios Spring Boot · Demo Dashboard · 2026</footer>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<script>
+function switchTab(id){
+  const tabs=['catalogo','plataformas','proveedores','categorias','ofertas'];
+  document.querySelectorAll('.tab').forEach((t,i)=>{
+    t.classList.toggle('active', tabs[i]===id);
+  });
+  document.querySelectorAll('.section').forEach(s=>s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+}
+
+const GRID='rgba(255,255,255,0.06)';
+const TICK='#555';
+const base={responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{grid:{color:GRID},ticks:{color:TICK,font:{size:11}}},y:{grid:{color:GRID},ticks:{color:TICK,font:{size:11}}}}};
+
+new Chart(document.getElementById('generoChart'),{
+  type:'bar',
+  data:{
+    labels:['Acción','RPG','Deporte','Aventura','Estrategia','Simulación'],
+    datasets:[{label:'Juegos',data:[7,5,4,4,2,2],
+      backgroundColor:['#2a78d6','#4a3aa7','#1baf7a','#e34948','#eda100','#e87ba4'],
+      borderRadius:5,borderSkipped:false}]
+  },
+  options:{...base}
+});
+
+new Chart(document.getElementById('platChart'),{
+  type:'doughnut',
+  data:{
+    labels:['PS5','Xbox','PC','Switch','PS4'],
+    datasets:[{data:[9,6,5,3,1],
+      backgroundColor:['#2a78d6','#1baf7a','#eda100','#4a3aa7','#e34948'],
+      borderWidth:2,borderColor:'#0f0f0f'}]
+  },
+  options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},cutout:'65%'}
+});
+
+new Chart(document.getElementById('provChart'),{
+  type:'bar',
+  data:{
+    labels:['Sony','Microsoft','Valve','Nintendo','Activision','Capcom'],
+    datasets:[{label:'Juegos',data:[9,6,4,3,2,2],
+      backgroundColor:'#1D9E75',borderRadius:5,borderSkipped:false}]
+  },
+  options:{...base}
+});
+
+new Chart(document.getElementById('catChart'),{
+  type:'bar',
+  data:{
+    labels:['RPG','Aventura','Acción','Deporte','Estrategia','Simulación'],
+    datasets:[{label:'Precio prom.',data:[57000,54000,49000,46000,40000,22000],
+      backgroundColor:'#2a78d6',borderRadius:5,borderSkipped:false}]
+  },
+  options:{...base,indexAxis:'y',
+    scales:{
+      x:{grid:{color:GRID},ticks:{color:TICK,font:{size:11},callback:v=>'$'+Math.round(v/1000)+'K'}},
+      y:{grid:{display:false},ticks:{color:TICK,font:{size:11}}}
+    }
+  }
+});
+
+new Chart(document.getElementById('ofertaChart'),{
+  type:'bar',
+  data:{
+    labels:['Elden Ring','Gran Turismo 7','Stardew Valley','Civ VII'],
+    datasets:[{label:'Ahorro CLP',data:[23996,12497,2998,7998],
+      backgroundColor:['#2a78d6','#1baf7a','#e87ba4','#eda100'],
+      borderRadius:5,borderSkipped:false}]
+  },
+  options:{...base,
+    scales:{
+      x:{grid:{display:false},ticks:{color:TICK,font:{size:11}}},
+      y:{grid:{color:GRID},ticks:{color:TICK,font:{size:11},callback:v=>'$'+v.toLocaleString('es-CL')}}
+    }
+  }
+});
+</script>
+</body>
+</html>
